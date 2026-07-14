@@ -106,7 +106,7 @@
                 const response = await fetch(API_URL);
 
                 if (!response.ok) {
-                    throw new Error(`Fel vid hämtning: ${response.status}`);
+                    throw new Error(`Error on response: ${response.status}`);
                 }
 
                 const cars = await response.json();
@@ -115,7 +115,7 @@
                 carList.innerHTML = "";
 
                 if (cars.length === 0) {
-                    carList.innerHTML = "<p>Det finns inga bilar i databasen.</p>";
+                    carList.innerHTML = "<p>There are no cars in the database.</p>";
                     return;
                 }
 
@@ -129,16 +129,16 @@
                             <span style="font-size: 0.9rem; color: #777;">Färg: ${car.color}</span>
                         </div>
                         <div class="btn-group">
-                            <button class="outline" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="prepareEdit(${JSON.stringify(car).replace(/"/g, '&quot;')})">Redigera</button>
-                            <button class="outline contrast" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="deleteCar(${car.id})">Ta bort</button>
+                            <button class="outline" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="prepareEdit(${JSON.stringify(car).replace(/"/g, '&quot;')})">Edit</button>
+                            <button class="outline contrast" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="deleteCar(${car.id})">Remove</button>
                         </div>
                     `;
                     carList.appendChild(card);
                 });
 
             } catch (error) {
-                console.error("Fel:", error);
-                carList.innerHTML = `<p style="color: red;">Kunde inte hämta bilar. Körs ditt API på ${API_URL}?</p>`;
+                console.error("Error:", error);
+                carList.innerHTML = `<p style="color: red;">Can't get cars. Is API on ${API_URL}?</p>`;
             }
         };
 
@@ -148,12 +148,20 @@
         const addCar = async () => {
             console.log("Running add car")
 
-            
-            try {
+            const newCar = {
+                name: document.getElementById('brand').value,
+                model: document.getElementById('model').value,
+                year: document.getElementById('year').value,
+                color: document.getElementById('color').value,
+            };
+
+            console.log(newCar)
+
+            /* try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newCar) 
+                    body: JSON.stringify(newCar)
                 });
                 if (!response.ok) {
                     throw new Error(`Error on response: ${response.status}`);
@@ -161,16 +169,16 @@
 
                 const cars = await response.json();
 
-                } catch (error) {
-                    console.error("Fel:", error);
-                    carList.innerHTML = `<p style="color: red;">Can't get cars. Is API on ${API_URL}?</p>`;
-                }
+            } catch (error) {
+                console.error("Error: ", error);
+                carList.innerHTML = `<p style="color: red;">Can't get cars. Is API on ${API_URL}?</p>`;
+            }
+ */
+        };
 
-            };
-
-            // Event listener för ladda-knappen
-            loadBtn.addEventListener('click', fetchCars);
-            submitBtn.addEventListener('click', addCar);
+        // Event listener för ladda-knappen
+        loadBtn.addEventListener('click', fetchCars);
+        submitBtn.addEventListener('click', addCar);
 
 
 
