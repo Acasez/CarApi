@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="sv">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,10 +16,12 @@
             justify-content: space-between;
             align-items: center;
         }
+
         .btn-group {
             display: flex;
             gap: 0.5rem;
         }
+
         /* Knapp i redigeringsläge */
         .editing {
             background-color: #e65100 !important;
@@ -26,6 +29,7 @@
         }
     </style>
 </head>
+
 <body class="container">
 
     <header>
@@ -61,7 +65,8 @@
                 </div>
                 <div style="display: flex; gap: 1rem;">
                     <button type="submit" id="submit-btn" style="flex: 3;">Spara bil</button>
-                    <button type="button" id="cancel-btn" class="secondary" style="flex: 1; display: none;">Avbryt</button>
+                    <button type="button" id="cancel-btn" class="secondary"
+                        style="flex: 1; display: none;">Avbryt</button>
                 </div>
             </form>
         </section>
@@ -73,7 +78,7 @@
                 <h3>Våra bilar i databasen</h3>
                 <button id="load-btn" class="secondary" style="width: auto;">Hämta bilar</button>
             </div>
-            
+
             <div id="car-list">
                 <p>Klicka på knappen för att ladda in bilar...</p>
             </div>
@@ -99,13 +104,13 @@
         const fetchCars = async () => {
             try {
                 const response = await fetch(API_URL);
-                
+
                 if (!response.ok) {
                     throw new Error(`Fel vid hämtning: ${response.status}`);
                 }
 
                 const cars = await response.json();
-                
+
                 // Töm listan innan vi ritar ut på nytt
                 carList.innerHTML = "";
 
@@ -137,17 +142,40 @@
             }
         };
 
-        // Event listener för ladda-knappen
-        loadBtn.addEventListener('click', fetchCars);
+        // ==========================================
+        // 🟢 ADD (Post) - Add a car
+        // ==========================================
+        const addCar = async () => {
+            console.log("Running add car")
+
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newCar) 
+                });
+                if (!response.ok) {
+                    throw new Error(`Error on response: ${response.status}`);
+                }
+
+                const cars = await response.json();
+
+                } catch (error) {
+                    console.error("Fel:", error);
+                    carList.innerHTML = `<p style="color: red;">Can't get cars. Is API on ${API_URL}?</p>`;
+                }
+
+            };
+
+            // Event listener för ladda-knappen
+            loadBtn.addEventListener('click', fetchCars);
+            submitBtn.addEventListener('click', addCar);
 
 
-        
 
-        
-
-
-        
 
     </script>
 </body>
+
 </html>
