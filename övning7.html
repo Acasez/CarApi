@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roger's Retro Cars</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <style>
+        .car-card {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+        /* Knapp i redigeringsläge */
+        .editing {
+            background-color: #e65100 !important;
+            border-color: #e65100 !important;
+        }
+    </style>
+</head>
+<body class="container">
+
+    <header>
+        <h1>My Cars</h1>
+        <p>Enkel frontend som pratar med vårt Minimal API</p>
+    </header>
+
+    <main>
+        <section id="form-section">
+            <h3 id="form-title">Lägg till ny bil</h3>
+            <form id="car-form">
+                <input type="hidden" id="car-id">
+
+                <div class="grid">
+                    <label>
+                        Märke
+                        <input type="text" id="brand" placeholder="t.ex. Volvo" required>
+                    </label>
+                    <label>
+                        Modell
+                        <input type="text" id="model" placeholder="t.ex. 240 Turbo" required>
+                    </label>
+                </div>
+                <div class="grid">
+                    <label>
+                        Årsmodell
+                        <input type="number" id="year" placeholder="t.ex. 1983" required>
+                    </label>
+                    <label>
+                        Färg
+                        <input type="text" id="color" placeholder="t.ex. Silver" required>
+                    </label>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" id="submit-btn" style="flex: 3;">Spara bil</button>
+                    <button type="button" id="cancel-btn" class="secondary" style="flex: 1; display: none;">Avbryt</button>
+                </div>
+            </form>
+        </section>
+
+        <hr>
+
+        <section>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3>Våra bilar i databasen</h3>
+                <button id="load-btn" class="secondary" style="width: auto;">Hämta bilar</button>
+            </div>
+            
+            <div id="car-list">
+                <p>Klicka på knappen för att ladda in bilar...</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // 1. Inställningar (Anpassad till din HTTPS-port från Visual Studio)
+        const API_URL = "https://localhost:7151/api/cars";
+
+        // 2. DOM-referenser
+        const loadBtn = document.querySelector('#load-btn');
+        const carList = document.querySelector('#car-list');
+        const carForm = document.querySelector('#car-form');
+        const carIdInput = document.querySelector('#car-id');
+        const formTitle = document.querySelector('#form-title');
+        const submitBtn = document.querySelector('#submit-btn');
+        const cancelBtn = document.querySelector('#cancel-btn');
+
+        // ==========================================
+        // 🟢 READ (GET) - Hämta och visa alla bilar
+        // ==========================================
+        const fetchCars = async () => {
+            try {
+                const response = await fetch(API_URL);
+                
+                if (!response.ok) {
+                    throw new Error(`Fel vid hämtning: ${response.status}`);
+                }
+
+                const cars = await response.json();
+                
+                // Töm listan innan vi ritar ut på nytt
+                carList.innerHTML = "";
+
+                if (cars.length === 0) {
+                    carList.innerHTML = "<p>Det finns inga bilar i databasen.</p>";
+                    return;
+                }
+
+                // Loopa igenom bilarna och bygg HTML för varje kort
+                cars.forEach(car => {
+                    const card = document.createElement('div');
+                    card.className = 'car-card';
+                    card.innerHTML = `
+                        <div>
+                            <strong>${car.brand} ${car.model}</strong> (${car.year}) <br>
+                            <span style="font-size: 0.9rem; color: #777;">Färg: ${car.color}</span>
+                        </div>
+                        <div class="btn-group">
+                            <button class="outline" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="prepareEdit(${JSON.stringify(car).replace(/"/g, '&quot;')})">Redigera</button>
+                            <button class="outline contrast" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="deleteCar(${car.id})">Ta bort</button>
+                        </div>
+                    `;
+                    carList.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error("Fel:", error);
+                carList.innerHTML = `<p style="color: red;">Kunde inte hämta bilar. Körs ditt API på ${API_URL}?</p>`;
+            }
+        };
+
+        // Event listener för ladda-knappen
+        loadBtn.addEventListener('click', fetchCars);
+
+
+        
+
+        
+
+
+        
+
+    </script>
+</body>
+</html>
