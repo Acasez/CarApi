@@ -145,7 +145,7 @@
         // ==========================================
         // 🟢 ADD (Post) - Add a car
         // ==========================================
-        const addCar = async () => {
+/*         const addCar = async () => {
             console.log("Running add car")
 
             const modelYear = document.getElementById('model').value
@@ -163,7 +163,7 @@
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newCar)
+                    body: JSON.stringify({ Brand: "Test", Model: "Test", Year: 2000, Color: "Test" })
                 });
                 if (!response.ok) {
                     throw new Error(`Error on response: ${response.status}`);
@@ -176,11 +176,38 @@
                 carList.innerHTML = `<p style="color: red;">Can't get cars. Is API on ${API_URL}?</p>`;
             }
 
+        }; */
+
+        async function saveCarFromForm() {
+            console.log("Saving car")
+            const modelYear = document.getElementById('model').value
+            const newCar = {
+                Brand: document.getElementById('brand').value,
+                Model: document.getElementById('model').value,
+                Year: parseInt(modelYear),
+                Color: document.getElementById('color').value,
+            };
+            console.log("New car: ", newCar)
+            await addCar(newCar);
+        }
+
+        const addCar = async (newCar) => {
+            console.log("Adding car: ", newCar)
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ Brand: "Test", Model: "Test", Year: 2000, Color: "Test" })
+                });
+                console.log(await response.text());
+            } catch (error) {
+                console.error("Error:", error);
+            }
         };
 
         // Event listener för ladda-knappen
         loadBtn.addEventListener('click', fetchCars);
-        submitBtn.addEventListener('click', addCar);
+        submitBtn.addEventListener('click', saveCarFromForm);
 
 
 
