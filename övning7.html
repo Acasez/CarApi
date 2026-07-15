@@ -69,7 +69,6 @@
                         style="flex: 1; display: none;">Avbryt</button>
                 </div>
             </form>
-            <button type="testAdd" id="testAdd-btn" style="flex: 3;">Adda Test Bil</button>
         </section>
 
         <hr>
@@ -130,7 +129,7 @@
                             <span style="font-size: 0.9rem; color: #777;">Färg: ${car.color}</span>
                         </div>
                         <div class="btn-group">
-                            <button type="button" class="outline" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="prepareEdit(${JSON.stringify(car).replace(/"/g, '&quot;')})">Edit</button>
+                            <button type="button" class="outline" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="getCar(${car.id})">Edit</button>
                             <button type="button" class="outline contrast" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="deleteCar(${car.id})">Remove</button>
                         </div>
                     `;
@@ -167,11 +166,20 @@
             console.log("Adding car: ", newCar)
             try {
                 console.log("Sending:", newCar);
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newCar)
-                });
+                if (currentEdtingCar != undefined && currentEditingId != undefined) {
+                    const response = await fetch(`${API_URL}/${currentEditingId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ...newCar, id: currentEditingId })
+                    });
+                }
+                else {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(newCar)
+                    });
+                }
                 console.log("Response status:", response.status);
                 console.log("Response text:", await response.text());
             } catch (error) {
@@ -196,6 +204,34 @@
                 console.error("Error deleting car:", error);
             }
         };
+        // ==========================================
+        // 🟢 EDIT (Patch) - Edit a car
+        // ==========================================
+        let currentEdtingCar
+        let currentEditingId
+        const getCar = async (id) => {
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                });
+                const car = await response.json();
+                console.log("Got car:", car);
+                currentEdtingCar = car;
+                currentEditingId = id;
+                prepareEdit(currentEdtingCar)
+            } catch (error) {
+                console.error("Error deleting car:", error);
+            }
+        };
+
+        const prepareEdit = (car) => {
+            currentEditingId = car.id;
+            document.getElementById('brand').value = car.brand;
+            document.getElementById('model').value = car.model;
+            document.getElementById('year').value = car.year;
+            document.getElementById('color').value = car.color;
+            document.getElementById('submit-btn').textContent = "Update Car";
+            document.getElementById('brand').focus();
+        }
 
         // Event listener för ladda-knappen
         loadBtn.addEventListener('click', fetchCars);
