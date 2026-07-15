@@ -130,8 +130,8 @@
                             <span style="font-size: 0.9rem; color: #777;">Färg: ${car.color}</span>
                         </div>
                         <div class="btn-group">
-                            <button class="outline" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="prepareEdit(${JSON.stringify(car).replace(/"/g, '&quot;')})">Edit</button>
-                            <button class="outline contrast" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="deleteCar(${car.id})">Remove</button>
+                            <button type="button" class="outline" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="prepareEdit(${JSON.stringify(car).replace(/"/g, '&quot;')})">Edit</button>
+                            <button type="button" class="outline contrast" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="deleteCar(${car.id})">Remove</button>
                         </div>
                     `;
                     carList.appendChild(card);
@@ -176,6 +176,24 @@
                 console.log("Response text:", await response.text());
             } catch (error) {
                 console.error("Error:", error);
+            }
+        };
+
+        // ==========================================
+        // 🟢 DELETE (Delete) - Remove a car
+        // ==========================================
+        const deleteCar = async (id) => {
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'DELETE'
+                });
+                if (!response.ok) {
+                    throw new Error(`Failed to delete car: ${response.status}`);
+                }
+                console.log("Removed car:", id);
+                await fetchCars(); // Wait for fetchCars to complete
+            } catch (error) {
+                console.error("Error deleting car:", error);
             }
         };
 
