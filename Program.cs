@@ -30,7 +30,6 @@ builder.Services.AddDbContext<VehicleContext>(options =>
 #endregion
 var app = builder.Build();
 // Aktivera Swagger-gränssnittet
-app.UseHttpsRedirection();
 app.UseSwagger();
 app.UseSwaggerUI();
 // Aktivera Cors

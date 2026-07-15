@@ -122,18 +122,20 @@
 
                 // Loopa igenom bilarna och bygg HTML för varje kort
                 cars.forEach(car => {
-                    const card = document.createElement('div');
-                    card.className = 'car-card';
+                    const card = document.createElement('article');
+                    // JSON is full of double quotes, which would close the attribute early.
+                    // Escaping them to &quot; keeps the whole object inside one attribute.
+                    const carData = JSON.stringify(car).replace(/"/g, '&quot;');
                     card.innerHTML = `
                         <div>
-                            <strong>${car.brand} ${car.model}</strong> (${car.year}) <br>
-                            <span style="font-size: 0.9rem; color: #777;">Färg: ${car.color}</span>
+                        <strong>${car.brand}, ${car.model}</strong> <span>(${car.year})</span> <span>${car.color}</span>
                         </div>
-                        <div class="btn-group">
-                            <button type="button" class="outline" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="prepareEdit(${JSON.stringify(car).replace(/"/g, '&quot;')})">Edit</button>
-                            <button type="button" class="outline contrast" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="deleteCar(${car.id})">Remove</button>
-                        </div>
-                    `;
+                        <div class="car-actions">
+                        <button onclick="prepareEdit(${carData})"
+                                aria-label="Edit ${car.brand} ${car.model}">Edit</button>
+                        <button class="secondary" onclick="deleteCar(${car.id})"
+                                aria-label="Delete ${car.brand} ${car.model}">Delete</button>
+                        </div>`;
                     carList.appendChild(card);
                 });
 
@@ -165,13 +167,25 @@
 
         const addCar = async (newCar) => {
             console.log("Adding car: ", newCar)
+            let response;
             try {
-                console.log("Sending:", newCar);
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newCar)
-                });
+                if (currentEditingId === null) {
+                    response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(newCar)
+                    });
+                } else {
+                    response = await fetch(`${API_URL}/${currentEditingId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ ...newCar, id: currentEditingId })
+                    })
+                }
                 console.log("Response status:", response.status);
                 console.log("Response text:", await response.text());
             } catch (error) {
@@ -183,25 +197,35 @@
         // 🟢 DELETE (Delete) - Remove a car
         // ==========================================
         const deleteCar = async (id) => {
-            try {
-                const response = await fetch(`${API_URL}/${id}`, {
-                    method: 'DELETE'
-                });
-                if (!response.ok) {
-                    throw new Error(`Failed to delete car: ${response.status}`);
-                }
-                console.log("Removed car:", id);
-                await fetchCars(); // Wait for fetchCars to complete
-            } catch (error) {
-                console.error("Error deleting car:", error);
+            const response = await fetch(`${API_URL}/${id}`, {
+                method: 'DELETE',
+            });
+            if (response.ok) {
+                await fetchCars();
+            } else {
+                alert('Failed to delete car');
             }
-        };
+        }
+
+        // ==========================================
+        // 🟢 EDIT (Patch) - Edit a car
+        // ==========================================
+
+        let currentEditingId = null;
+
+        const prepareEdit = (car) => {
+            currentEditingId = car.id;
+            document.getElementById('brand').value = car.brand;
+            document.getElementById('model').value = car.model;
+            document.getElementById('year').value = car.year;
+            document.getElementById('color').value = car.color;
+            document.getElementById('submit-btn').textContent = "Update Car";
+            document.getElementById('brand').focus();
+        }
 
         // Event listener för ladda-knappen
         loadBtn.addEventListener('click', fetchCars);
         submitBtn.addEventListener('click', saveCarFromForm);
-
-
 
     </script>
 </body>
