@@ -69,6 +69,7 @@
                         style="flex: 1; display: none;">Avbryt</button>
                 </div>
             </form>
+            <button type="testAdd" id="testAdd-btn" style="flex: 3;">Adda Test Bil</button>
         </section>
 
         <hr>
@@ -145,61 +146,34 @@
         // ==========================================
         // 🟢 ADD (Post) - Add a car
         // ==========================================
-/*         const addCar = async () => {
-            console.log("Running add car")
-
-            const modelYear = document.getElementById('model').value
-
-            const newCar = {
-                Brand: document.getElementById('brand').value,
-                Model: document.getElementById('model').value,
-                Year: parseInt(modelYear),
-                Color: document.getElementById('color').value,
-            };
-
-            console.log("New car: ", newCar)
-
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Brand: "Test", Model: "Test", Year: 2000, Color: "Test" })
-                });
-                if (!response.ok) {
-                    throw new Error(`Error on response: ${response.status}`);
-                }
-
-                const cars = await response.json();
-
-            } catch (error) {
-                console.error("Error: ", newCar, error);
-                carList.innerHTML = `<p style="color: red;">Can't get cars. Is API on ${API_URL}?</p>`;
-            }
-
-        }; */
-
         async function saveCarFromForm() {
+            event.preventDefault();
             console.log("Saving car")
-            const modelYear = document.getElementById('model').value
+            const year = document.getElementById('year').value
             const newCar = {
                 Brand: document.getElementById('brand').value,
                 Model: document.getElementById('model').value,
-                Year: parseInt(modelYear),
+                Year: parseInt(year),
                 Color: document.getElementById('color').value,
             };
-            console.log("New car: ", newCar)
+            if (!newCar.Brand || !newCar.Model || isNaN(newCar.Year) || !newCar.Color) {
+                console.error("Invalid car data:", newCar);
+                return;
+            }
             await addCar(newCar);
         }
 
         const addCar = async (newCar) => {
             console.log("Adding car: ", newCar)
             try {
+                console.log("Sending:", newCar);
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Brand: "Test", Model: "Test", Year: 2000, Color: "Test" })
+                    body: JSON.stringify(newCar)
                 });
-                console.log(await response.text());
+                console.log("Response status:", response.status);
+                console.log("Response text:", await response.text());
             } catch (error) {
                 console.error("Error:", error);
             }
@@ -208,7 +182,6 @@
         // Event listener för ladda-knappen
         loadBtn.addEventListener('click', fetchCars);
         submitBtn.addEventListener('click', saveCarFromForm);
-
 
 
 
