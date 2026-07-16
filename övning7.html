@@ -191,6 +191,7 @@
         // 🟢 DELETE (Delete) - Remove a car
         // ==========================================
         const deleteCar = async (id) => {
+        event.preventDefault();
             try {
                 const response = await fetch(`${API_URL}/${id}`, {
                     method: 'DELETE'

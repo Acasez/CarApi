@@ -66,3 +66,5 @@ C:\Users\Edvin\CarApi\obj\Debug\net10.0\CarApi.pdb
 C:\Users\Edvin\CarApi\obj\Debug\net10.0\CarApi.genruntimeconfig.cache
 C:\Users\Edvin\CarApi\obj\Debug\net10.0\ref\CarApi.dll
 c:\Users\Edvin\CarApi\obj\Debug\net10.0\CarApi.sourcelink.json
+c:\Users\Edvin\CarApi\bin\Debug\net10.0\mitt-ts-projekt\package.json
+c:\Users\Edvin\CarApi\bin\Debug\net10.0\mitt-ts-projekt\tsconfig.json
