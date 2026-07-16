@@ -951,11 +951,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Edvin\\CarApi\\CarApi.csproj",
+      "projectUniqueName": "c:\\Users\\Edvin\\CarApi\\CarApi.csproj",
       "projectName": "CarApi",
-      "projectPath": "C:\\Users\\Edvin\\CarApi\\CarApi.csproj",
+      "projectPath": "c:\\Users\\Edvin\\CarApi\\CarApi.csproj",
       "packagesPath": "C:\\Users\\Edvin\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Edvin\\CarApi\\obj\\",
+      "outputPath": "c:\\Users\\Edvin\\CarApi\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
