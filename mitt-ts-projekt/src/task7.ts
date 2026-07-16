@@ -4,11 +4,11 @@ const API_URL = "https://localhost:5000/api/cars";
 // 2. DOM-referenser
 const loadBtn = document.querySelector("#load-btn") as HTMLButtonElement;
 const carList = document.querySelector("#car-list") as HTMLDListElement;
-const carForm = document.querySelector("#car-form");
+/* const carForm = document.querySelector("#car-form");
 const carIdInput = document.querySelector("#car-id");
-const formTitle = document.querySelector("#form-title");
+const formTitle = document.querySelector("#form-title"); */
 const submitBtn = document.querySelector("#submit-btn") as HTMLButtonElement;
-const cancelBtn = document.querySelector("#cancel-btn") as HTMLButtonElement;
+//const cancelBtn = document.querySelector("#cancel-btn") as HTMLButtonElement;
 
 // ==========================================
 // 🟢 READ (GET) - Hämta och visa alla bilar
@@ -65,6 +65,9 @@ const fetchCars = async () => {
 
                 if (targetDataType === "delete" && car.id !== undefined) {
                     deleteCar(car.id);
+                }
+                else if (targetDataType === "update" && car.id !== undefined) {
+                    getCar(car.id);
                 }
             });
 
