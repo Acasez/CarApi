@@ -2,17 +2,26 @@
 const API_URL = "https://localhost:5000/api/cars";
 
 // 2. DOM-referenser
-const loadBtn = document.querySelector("#load-btn");
-const carList = document.querySelector("#car-list");
+const loadBtn = document.querySelector("#load-btn") as HTMLButtonElement;
+const carList = document.querySelector("#car-list") as HTMLDListElement;
 const carForm = document.querySelector("#car-form");
 const carIdInput = document.querySelector("#car-id");
 const formTitle = document.querySelector("#form-title");
-const submitBtn = document.querySelector("#submit-btn");
-const cancelBtn = document.querySelector("#cancel-btn");
+const submitBtn = document.querySelector("#submit-btn") as HTMLButtonElement;
+const cancelBtn = document.querySelector("#cancel-btn") as HTMLButtonElement;
 
 // ==========================================
 // 🟢 READ (GET) - Hämta och visa alla bilar
 // ==========================================
+
+interface car {
+    id?: number;
+    brand: string;
+    model: string;
+    year: number;
+    color: string;
+}
+
 const fetchCars = async () => {
     try {
         const response = await fetch(API_URL);
@@ -21,7 +30,7 @@ const fetchCars = async () => {
             throw new Error(`Error on response: ${response.status}`);
         }
 
-        const cars = await response.json();
+        const cars: car[] = await response.json();
 
         // Töm listan innan vi ritar ut på nytt
         carList.innerHTML = "";
@@ -32,32 +41,35 @@ const fetchCars = async () => {
         }
 
         // Loopa igenom bilarna och bygg HTML för varje kort
-        cars.forEach((car) => {
+        for (const car of cars) {
+            if (car.id === undefined) {
+                continue; 
+            }
+
             const card = document.createElement("div");
             card.className = "car-card";
             card.innerHTML = `
-                        <div>
-                            <strong>${car.brand} ${car.model}</strong> (${car.year}) <br>
-                            <span style="font-size: 0.9rem; color: #777;">Färg: ${car.color}</span>
-                        </div>
-                        <div class="btn-group">
-													<button data-buttontype="update" class="outline" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Redigera</button>
-													<button data-buttontype="delete" class="outline contrast" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Ta bort</button>
-                        </div>
-                    `;
+        <div>
+            <strong>${car.brand} ${car.model}</strong> (${car.year}) <br>
+            <span style="font-size: 0.9rem; color: #777;">Färg: ${car.color}</span>
+        </div>
+        <div class="btn-group">
+            <button data-buttontype="update" class="outline" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Redigera</button>
+            <button data-buttontype="delete" class="outline contrast" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Ta bort</button>
+        </div>
+    `;
 
             card.addEventListener("click", (e) => {
-                if (e.target) {
-                    const target = e.target;
-                    const targetDataType = target.dataset.buttontype;
+                const target = e.target as HTMLElement;
+                const targetDataType = target.dataset.buttontype;
 
-                    if (targetDataType === "delete") {
-                        deleteCar(car.id);
-                    }
+                if (targetDataType === "delete" && car.id !== undefined) {
+                    deleteCar(car.id);
                 }
             });
+
             carList.appendChild(card);
-        });
+        }
     } catch (error) {
         console.error("Error:", error);
         carList.innerHTML = `<p style="color: red;">Can't get cars. Is API on ${API_URL}?</p>`;
@@ -68,28 +80,34 @@ const fetchCars = async () => {
 // 🟢 ADD (Post) - Add a car
 // ==========================================
 async function saveCarFromForm() {
-    event.preventDefault();
     console.log("Saving car");
-    const year = document.getElementById("year").value;
-    const newCar = {
-        Brand: document.getElementById("brand").value,
-        Model: document.getElementById("model").value,
-        Year: parseInt(year),
-        Color: document.getElementById("color").value,
+    const yearInput = document.getElementById("year") as HTMLFormElement | null;
+    const brandInput = document.getElementById("brand") as HTMLInputElement | null;
+    const modelInput = document.getElementById("model") as HTMLInputElement | null;
+    const colorInput = document.getElementById("color") as HTMLInputElement | null;
+
+
+    if (!yearInput || !brandInput || !modelInput || !colorInput) {
+        console.error("One or more form elements are missing");
+        return;
+    }
+
+    const newCar: car = {
+        brand: brandInput.value,
+        model: modelInput.value,
+        year: parseInt(yearInput.value),
+        color: colorInput.value,
     };
-    if (
-        !newCar.Brand ||
-        !newCar.Model ||
-        isNaN(newCar.Year) ||
-        !newCar.Color
-    ) {
+
+    if (!newCar.brand || !newCar.model || isNaN(newCar.year) || !newCar.color) {
         console.error("Invalid car data:", newCar);
         return;
     }
+
     await addCar(newCar);
 }
 
-const addCar = async (newCar) => {
+const addCar = async (newCar: car) => {
     console.log("Adding car: ", newCar);
     try {
         console.log("Sending:", newCar);
@@ -99,15 +117,17 @@ const addCar = async (newCar) => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ ...newCar, id: currentEditingId }),
             });
+            console.log("Response status:", response);
+            console.log("Response text:", await response.text());
         } else {
             const response = await fetch(API_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(newCar),
             });
+            console.log("Response status:", response);
+            console.log("Response text:", await response.text());
         }
-        console.log("Response status:", response.status);
-        console.log("Response text:", await response.text());
     } catch (error) {
         console.error("Error:", error);
     }
@@ -116,7 +136,7 @@ const addCar = async (newCar) => {
 // ==========================================
 // 🟢 DELETE (Delete) - Remove a car
 // ==========================================
-const deleteCar = async (id) => {
+const deleteCar = async (id: number) => {
     try {
         const response = await fetch(`${API_URL}/${id}`, {
             method: "DELETE",
@@ -133,9 +153,9 @@ const deleteCar = async (id) => {
 // ==========================================
 // 🟢 EDIT (Patch) - Edit a car
 // ==========================================
-let currentEdtingCar;
-let currentEditingId;
-const getCar = async (id) => {
+let currentEdtingCar: car;
+let currentEditingId: number;
+const getCar = async (id: number) => {
     try {
         const response = await fetch(`${API_URL}/${id}`, {});
         const car = await response.json();
@@ -148,14 +168,32 @@ const getCar = async (id) => {
     }
 };
 
-const prepareEdit = (car) => {
+const prepareEdit = (car: car) => {
+    if (car.id === undefined) {
+        console.log("Car has no id", car);
+        return;
+    }
+
     currentEditingId = car.id;
-    document.getElementById("brand").value = car.brand;
-    document.getElementById("model").value = car.model;
-    document.getElementById("year").value = car.year;
-    document.getElementById("color").value = car.color;
-    document.getElementById("submit-btn").textContent = "Update Car";
-    document.getElementById("brand").focus();
+
+    const brandInput = document.getElementById("brand") as HTMLInputElement | null;
+    const modelInput = document.getElementById("model") as HTMLInputElement | null;
+    const yearInput = document.getElementById("year") as HTMLInputElement | null;
+    const colorInput = document.getElementById("color") as HTMLInputElement | null;
+    const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement | null;
+
+    if (!brandInput || !modelInput || !yearInput || !colorInput || !submitBtn) {
+        console.error("One or more form elements are missing");
+        return;
+    }
+
+    brandInput.value = car.brand;
+    modelInput.value = car.model;
+    yearInput.value = car.year.toString(); // Ensure year is a string for input value
+    colorInput.value = car.color;
+    submitBtn.textContent = "Update Car";
+
+    brandInput.focus();
 };
 
 // Event listener för ladda-knappen
